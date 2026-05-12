@@ -1,16 +1,14 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import fs from "fs";
-import path from "path";
 import type { AnalysisResult } from "@/types/shipment";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-function readImageAsBase64(imagePath: string): {
+async function fetchImageAsBase64(imageUrl: string): Promise<{
   data: string;
   mimeType: string;
-} {
-  const fullPath = path.join(process.cwd(), "public", imagePath);
-  const buffer = fs.readFileSync(fullPath);
+}> {
+  const res = await fetch(imageUrl);
+  const buffer = Buffer.from(await res.arrayBuffer());
   const data = buffer.toString("base64");
 
   const isPng = buffer[0] === 0x89 && buffer[1] === 0x50;
@@ -48,8 +46,8 @@ export async function analyzeShipmentImages(
   podImagePath: string
 ): Promise<AnalysisResult> {
   try {
-    const qcImage = readImageAsBase64(qcImagePath);
-    const podImage = readImageAsBase64(podImagePath);
+    const qcImage = await fetchImageAsBase64(qcImagePath);
+    const podImage = await fetchImageAsBase64(podImagePath);
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 

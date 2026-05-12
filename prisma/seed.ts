@@ -1,22 +1,21 @@
 import { PrismaClient } from "@prisma/client";
+import { put } from "@vercel/blob";
 import fs from "fs";
 import path from "path";
 
 const IMAGES_DIR = path.join(process.cwd(), "images");
-const UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
 
-function copyImage(filename: string): string {
-  const src = path.join(IMAGES_DIR, filename);
-  const dest = path.join(UPLOADS_DIR, filename);
-  fs.copyFileSync(src, dest);
-  return `/uploads/${filename}`;
+async function uploadImage(filename: string): Promise<string> {
+  const filePath = path.join(IMAGES_DIR, filename);
+  const buffer = fs.readFileSync(filePath);
+  const blob = await put(filename, buffer, { access: "public" });
+  console.log(`  Uploaded ${filename} → ${blob.url}`);
+  return blob.url;
 }
 
 const prisma = new PrismaClient();
 
 async function main() {
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-
   await prisma.shipment.deleteMany();
 
   const shipments = [
@@ -25,23 +24,23 @@ async function main() {
       productName: "Pink Lily Bouquet",
       amount: 45.0,
       status: "DELIVERED",
-      qcImagePath: copyImage("QC_17784787.jpeg"),
-      podImagePath: copyImage("POD_17784787.jpeg"),
+      qcImagePath: await uploadImage("QC_17784787.jpeg"),
+      podImagePath: await uploadImage("POD_17784787.jpeg"),
     },
     {
       shipmentId: "SHP-17906357",
       productName: "Mixed Rose Vase Arrangement",
       amount: 85.0,
       status: "DELIVERED",
-      qcImagePath: copyImage("QC_17906357.jpeg"),
-      podImagePath: copyImage("POD_17906357.jpeg"),
+      qcImagePath: await uploadImage("QC_17906357.jpeg"),
+      podImagePath: await uploadImage("POD_17906357.jpeg"),
     },
     {
       shipmentId: "SHP-17909611",
       productName: "Pink Spray Rose Bouquet",
       amount: 65.0,
       status: "YET_TO_BE_DELIVERED",
-      qcImagePath: copyImage("qc_17909611.jpeg"),
+      qcImagePath: await uploadImage("qc_17909611.jpeg"),
       podImagePath: null,
     },
   ];

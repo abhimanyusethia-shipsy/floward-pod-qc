@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import path from "path";
-import fs from "fs/promises";
+import { put } from "@vercel/blob";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -38,20 +37,15 @@ export async function POST(request: Request) {
     );
   }
 
-  const bytes = await qcImage.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
   const filename = `QC_${shipmentId}_${Date.now()}.jpeg`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(uploadDir, { recursive: true });
-  await fs.writeFile(path.join(uploadDir, filename), buffer);
+  const blob = await put(filename, qcImage, { access: "public" });
 
   const shipment = await prisma.shipment.create({
     data: {
       shipmentId,
       productName,
       amount,
-      qcImagePath: `/uploads/${filename}`,
+      qcImagePath: blob.url,
     },
   });
 

@@ -200,8 +200,7 @@ function GroupSection({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger asChild>
-        <button
+      <CollapsibleTrigger
           className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium w-full ${colors[variant]}`}
         >
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -210,7 +209,6 @@ function GroupSection({
           <Badge variant="secondary" className="ml-auto text-xs">
             {count}
           </Badge>
-        </button>
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-2">{children}</CollapsibleContent>
     </Collapsible>

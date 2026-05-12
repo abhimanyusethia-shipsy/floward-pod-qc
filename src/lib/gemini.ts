@@ -19,27 +19,27 @@ async function fetchImageAsBase64(imageUrl: string): Promise<{
 
 const PROMPT = `You are an expert quality control AI for Floward, a premium flower and gifts retailer.
 
-Analyze these two images:
+You will receive two images:
 - Image 1 (QC): Quality Control photo taken at the Floward warehouse before dispatch
 - Image 2 (POD): Proof of Delivery photo taken at the customer's location
 
-Compare them strictly:
-1. Verify both images show a bouquet/flower arrangement
-2. Check the overall type, shape, and style of the arrangement
-3. Compare specific flower colors, types, and count/density
-4. Inspect the wrapping, vase, or container for damage
-5. Look for signs of wilting, crushed petals, or missing stems
-6. Assess if lighting/angle differences are hiding damage
+Your ONLY job is to verify the PRODUCT CONDITION. Compare:
+1. Does the POD show the same type of bouquet/arrangement as the QC?
+2. Are the flower colors, types, and count/density consistent?
+3. Is there any visible damage: wilting, crushed petals, missing stems, broken vase/wrapping?
+4. Is anything clearly missing or substituted?
+
+IMPORTANT:
+- Different backgrounds, lighting, or camera angles are EXPECTED and must NOT affect your judgment.
+- If both images show the same product in the same condition, recommend "Approve" — even if the photos look very similar or identical.
+- Only recommend "Review" if there is visible damage, a wrong/different product, missing items, or the images are too blurry to assess.
 
 Return ONLY a JSON object (no markdown, no extra text):
 {
   "recommendation": "Approve" or "Review",
   "confidenceScore": <0-100>,
   "reasoning": ["<point 1>", "<point 2>", "<point 3 if needed>"]
-}
-
-Use "Approve" only if the product clearly matches with no visible damage.
-Use "Review" if there is ANY discrepancy, damage, missing items, or if images are too blurry to assess.`;
+}`;
 
 export async function analyzeShipmentImages(
   qcImagePath: string,
